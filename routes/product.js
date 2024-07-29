@@ -18,10 +18,10 @@ router.get('/', async (req, res) => {
         const pool = await poolPromise;
         if (!pool) throw new Error('Database connection failed');
 
-        const result = await pool.request().query('SELECT * FROM ogrenci');
+        const result = await pool.request().query('SELECT * FROM products');
         res.json(result.recordset);
     } catch (err) {
-        console.error('Error in GET /ogrenci:', err);
+        console.error('Error in GET /products:', err);
         res.status(500).send(err.message);
     }
 });
@@ -34,10 +34,10 @@ router.get('/:id', async (req, res) => {
 
         const result = await pool.request()
             .input('Id', sql.Int, req.params.id)
-            .query('SELECT * FROM ogrenci WHERE Id = @Id');
+            .query('SELECT * FROM products WHERE Id = @Id');
         res.json(result.recordset[0]);
     } catch (err) {
-        console.error('Error in GET /ogrenci/:id:', err);
+        console.error('Error in GET /products/:id:', err);
         res.status(500).send(err.message);
     }
 });
@@ -46,17 +46,23 @@ router.get('/:id', async (req, res) => {
 // Create new student
 router.post('/', async (req, res) => {
     try {
-        const { Name, Weight } = req.body;
+        const { name, count, createDate, description, id, image, status, unit } = req.body;
         const pool = await poolPromise;
         if (!pool) throw new Error('Database connection failed');
 
         const result = await pool.request()
-            .input('Name', sql.VarChar, Name)
-            .input('Weight', sql.Float, Weight)
-            .query('INSERT INTO ogrenci (Name, Weight) VALUES (@Name, @Weight)');
+            .input('name', sql.NVarChar, name)
+            .input('count', sql.Int, count)
+            .input('createDate', sql.NVarChar, createDate)
+            .input('description', sql.NVarChar, description)
+            .input('id', sql.NVarChar, id)
+            .input('image', sql.NVarChar, image)
+            .input('status', sql.Bit, status)
+            .input('unit', sql.NVarChar, unit)
+            .query('INSERT INTO products (name, count, createDate, description, id, image, status, unit) VALUES (@name, @count, @createDate, @description, @id, @image, @status, @unit)');
         res.status(201).json({ message: 'Student created server ' });
     } catch (err) {
-        console.error('Error in POST /ogrenci:', err);
+        console.error('Error in POST /products:', err);
         res.status(500).send(err.message);
     }
 });
@@ -73,10 +79,10 @@ router.put('/:id', async (req, res) => {
             .input('Id', sql.Int, req.params.id)
             .input('Name', sql.VarChar, Name)
             .input('Weight', sql.Float, Weight)
-            .query('UPDATE ogrenci SET Name = @Name, Weight = @Weight WHERE Id = @Id');
-        res.json({ message: 'Student updated' });
+            .query('UPDATE products SET Name = @Name, Weight = @Weight WHERE Id = @Id');
+        res.json({ message: 'products updated' });
     } catch (err) {
-        console.error('Error in PUT /ogrenci/:id:', err);
+        console.error('Error in PUT /products/:id:', err);
         res.status(500).send(err.message);
     }
 });
@@ -89,10 +95,10 @@ router.delete('/:id', async (req, res) => {
 
         const result = await pool.request()
             .input('Id', sql.Int, req.params.id)
-            .query('DELETE FROM ogrenci WHERE Id = @Id');
+            .query('DELETE FROM products WHERE Id = @Id');
         res.json({ message: 'Student deleted' });
     } catch (err) {
-        console.error('Error in DELETE /ogrenci/:id:', err);
+        console.error('Error in DELETE /products/:id:', err);
         res.status(500).send(err.message);
     }
 });
